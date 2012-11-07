@@ -12,34 +12,48 @@
 # limitations under the License.
 #
 
+require 'net/http'
+require 'rexml/document'
+
 class WookieServerConnection
-    attr_accessor :host, :apiKey, :sharedDataKey
 
-    def initialize(host, apiKey, sharedDataKey)
-        @host = host
-        @apiKey = apiKey
-        @sharedDataKey = sharedDataKey
+  attr_reader :host
+
+  def initialize(host, api_key, shared_data_key)
+    @host            = host.gsub %r{/$}, ''
+    @api_key         = api_key
+    @shared_data_key = shared_data_key
+  end
+
+  def widgets
+    xml_data = Net::HTTP.get_response(URI.parse "#@host/widgets?all=true").body
+    REXML::Document.new(xml_data).elements.collect('widgets/widget') do |widget|
+      Widget.new widget.elements['name'].text, guid: widget.attributes['id']
     end
+  end
 
-    def Test()
-        require 'net/http'
-        require 'rexml/document'
-        xmlData = Net::HTTP.get_response(URI.parse "#{@host}widgets?all=true").body
+  def find_or_create_widget(guid, user)
+    xml_data = Net::HTTP.post_form(URI.parse("#@host/widgetinstances"),
+                                   {api_key: @api_key,
+                                    userid: user.login_name,
+                                    widgetid: guid}).body
 
-        # widgets node, if not found return false
-        begin
-            doc = REXML::Document.new(xmlData)
-            anyWidgetsFound = doc.elements['widgets']
-            if anyWidgetsFound
-                return true
-            else
-                return false
-            end
-        rescue REXML::ParseException=>e
-            puts "ParseException: #{e.message}"
-            return false
-        end
+    widget = REXML::Document.new(xml_data).elements['widgetdata']
+    Widget.new(widget.elements['title'].text, {
+      url: widget.elements['url'].text,
+      width: widget.elements['width'].text,
+      height: widget.elements['height'].text
+    })
+  rescue REXML::ParseException => ex
+    puts "ParseException: #{ex.message}"
+    nil
+  end
 
-    end
+  def test
+    w = widgets
+    !w.nil? && w.length > 0
+  rescue REXML::ParseException => ex
+    puts "ParseException: #{ex.message}"
+    false
+  end
 end
-

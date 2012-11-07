@@ -13,14 +13,10 @@
 #
 
 class User
-    attr_accessor :loginName, :screenName, :thumbnailUrl
+  attr_reader :login_name, :screen_name
 
-    def initialize(userName, screenName = '', thumnailUrl = '')
-        @loginName = userName
-        if screenName == ''
-            screenName = userName
-        end
-        @screenName = screenName
-        @thumbnailUrl = thumbnailUrl
-    end
+  def initialize(user_name, screen_name = nil)
+    @login_name  = user_name
+    @screen_name = screen_name.nil? ? user_name : screen_name
+  end
 end

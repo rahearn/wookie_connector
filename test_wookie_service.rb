@@ -12,24 +12,23 @@
 # limitations under the License.
 #
 
-$:.push File.expand_path('../', __FILE__)
+$:.push File.expand_path('../wookie', __FILE__)
 
-require 'wookie/WookieConnectorService.rb'
+require 'wookie_connector_service'
 
 service = WookieConnectorService.new("http://localhost:8080/wookie/", "TEST", "ruby_localhost", "demo_ruby_user")
 
-puts service.getCurrentUser().screenName
+puts service.user.screen_name
 
-alive = service.getConnection().Test()
+alive = service.connection.test
 if alive
-    puts service.getConnection().host
-    service.getAvailableWidgets().each do |widget|
-        widgetInstance = service.getOrCreateWidgetInstance(widget.guid)
-        puts widgetInstance.url
-        puts widgetInstance.width
-        puts widgetInstance.height
-        break
-    end
+  puts service.connection.host
+
+  widgetInstance = service.find_or_create_widget service.widgets.first.guid
+  puts widgetInstance.title
+  puts widgetInstance.url
+  puts widgetInstance.width
+  puts widgetInstance.height
 else
-    puts "Connection failed!"
+  puts "Connection failed!"
 end

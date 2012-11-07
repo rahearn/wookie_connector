@@ -13,12 +13,22 @@
 #
 
 class Widget
-    attr_accessor :title, :guid, :width, :height
+  attr_reader :title
 
-    def initialize(title, guid, width, height)
-        @title = title
-        @guid = guid
-        @width = width
-        @height = height
+  def initialize(title, extras = {})
+    @title  = title
+    @extras = extras
+  end
+
+  def method_missing(method, *args, &block)
+    if respond_to_missing? method
+      @extras[method.to_sym]
+    else
+      super
     end
+  end
+
+  def respond_to_missing?(method, include_private = false)
+    @extras.has_key? method.to_sym
+  end
 end
