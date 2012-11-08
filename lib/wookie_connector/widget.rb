@@ -12,23 +12,25 @@
 # limitations under the License.
 #
 
-class Widget
-  attr_reader :title
+module WookieConnector
+  class Widget
+    attr_reader :title
 
-  def initialize(title, extras = {})
-    @title  = title
-    @extras = extras
-  end
-
-  def method_missing(method, *args, &block)
-    if respond_to_missing? method
-      @extras[method.to_sym]
-    else
-      super
+    def initialize(title, extras = {})
+      @title  = title
+      @extras = extras
     end
-  end
 
-  def respond_to_missing?(method, include_private = false)
-    @extras.has_key? method.to_sym
+    def method_missing(method, *args, &block)
+      if respond_to_missing? method
+        @extras[method.to_sym]
+      else
+        super
+      end
+    end
+
+    def respond_to_missing?(method, include_private = false)
+      @extras.has_key? method.to_sym
+    end
   end
 end

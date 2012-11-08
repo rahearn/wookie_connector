@@ -12,28 +12,22 @@
 # limitations under the License.
 #
 
-require 'wookie_server_connection'
-require 'widget/user'
-require 'widget/widget'
+module WookieConnector
+  class WookieConnectorService
 
-require 'net/http'
-require 'uri'
-require 'rexml/document'
+    attr_reader :user, :connection
 
-class WookieConnectorService
+    def initialize(host, apiKey, sharedDataKey, userName)
+      @connection = WookieServerConnection.new host, apiKey, sharedDataKey
+      @user       = User.new userName
+    end
 
-  attr_reader :user, :connection
+    def widgets
+      connection.widgets
+    end
 
-  def initialize(host, apiKey, sharedDataKey, userName)
-    @connection = WookieServerConnection.new host, apiKey, sharedDataKey
-    @user       = User.new userName
-  end
-
-  def widgets
-    connection.widgets
-  end
-
-  def find_or_create_widget(guid)
-    connection.find_or_create_widget guid, user
+    def find_or_create_widget(guid)
+      connection.find_or_create_widget guid, user
+    end
   end
 end

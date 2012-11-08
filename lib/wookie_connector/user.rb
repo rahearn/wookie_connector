@@ -12,11 +12,13 @@
 # limitations under the License.
 #
 
-class User
-  attr_reader :login_name, :screen_name
+module WookieConnector
+  class User
+    attr_reader :login_name, :screen_name
 
-  def initialize(user_name, screen_name = nil)
-    @login_name  = user_name
-    @screen_name = screen_name.nil? ? user_name : screen_name
+    def initialize(user_name, screen_name = nil)
+      @login_name  = user_name
+      @screen_name = screen_name.nil? ? user_name : screen_name
+    end
   end
 end

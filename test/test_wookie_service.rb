@@ -12,11 +12,11 @@
 # limitations under the License.
 #
 
-$:.push File.expand_path('../wookie', __FILE__)
+$:.push File.expand_path('../lib', __FILE__)
 
-require 'wookie_connector_service'
+require 'wookie_connector'
 
-service = WookieConnectorService.new("http://localhost:8080/wookie/", "TEST", "ruby_localhost", "demo_ruby_user")
+service = WookieConnector::WookieConnectorService.new("http://localhost:8080/wookie/", "TEST", "ruby_localhost", "demo_ruby_user")
 
 puts service.user.screen_name
 
