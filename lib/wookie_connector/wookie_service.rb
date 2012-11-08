@@ -13,21 +13,29 @@
 #
 
 module WookieConnector
-  class WookieConnectorService
+  class WookieService
 
-    attr_reader :user, :connection
+    attr_reader :user, :server
 
     def initialize(host, apiKey, sharedDataKey, userName)
-      @connection = WookieServerConnection.new host, apiKey, sharedDataKey
-      @user       = User.new userName
-    end
-
-    def widgets
-      connection.widgets
+      @server = Server.new host, apiKey, sharedDataKey
+      @user   = User.new userName
     end
 
     def find_or_create_widget(guid)
-      connection.find_or_create_widget guid, user
+      server.find_or_create_widget guid, user
+    end
+
+    def method_missing(method, *args, &block)
+      if respond_to_missing? method
+        server.send method, *args, &block
+      else
+        super
+      end
+    end
+
+    def respond_to_missing?(method, include_private = false)
+      server.respond_to? method, include_private
     end
   end
 end

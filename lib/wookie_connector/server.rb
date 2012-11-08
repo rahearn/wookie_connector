@@ -16,7 +16,7 @@ require 'net/http'
 require 'rexml/document'
 
 module WookieConnector
-  class WookieServerConnection
+  class Server
 
     attr_reader :host
 

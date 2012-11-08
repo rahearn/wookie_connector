@@ -32,5 +32,9 @@ module WookieConnector
     def respond_to_missing?(method, include_private = false)
       @extras.has_key? method.to_sym
     end
+
+    def to_s
+      "Widget Title: #{title}\n       Attributes: #{@extras.inspect}"
+    end
   end
 end
