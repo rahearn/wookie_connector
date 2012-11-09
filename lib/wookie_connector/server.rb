@@ -24,6 +24,7 @@ module WookieConnector
       @host            = host.gsub %r{/$}, ''
       @api_key         = api_key
       @shared_data_key = shared_data_key
+      @cache           = {}
     end
 
     def widgets
@@ -34,20 +35,26 @@ module WookieConnector
     end
 
     def find_or_create_widget(guid, user)
-      xml_data = Net::HTTP.post_form(URI.parse("#@host/widgetinstances"),
-                                     {api_key: @api_key,
-                                      userid: user.login_name,
-                                      widgetid: guid}).body
+      key = :"#{guid}:#{user.login_name}"
+      @cache[key] ||= begin
+                        xml_data = Net::HTTP.post_form(URI.parse("#@host/widgetinstances"),
+                                                       {'api_key' => @api_key,
+                                                        'userid' => user.login_name,
+                                                        'widgetid' => guid}).body
 
-      widget = REXML::Document.new(xml_data).elements['widgetdata']
-      Widget.new(widget.elements['title'].text, {
-        url: widget.elements['url'].text,
-        width: widget.elements['width'].text,
-        height: widget.elements['height'].text
-      })
-    rescue REXML::ParseException => ex
-      puts "ParseException: #{ex.message}"
-      nil
+                        widget = REXML::Document.new(xml_data).elements['widgetdata']
+                        Widget.new(widget.elements['title'].text, {
+                          url: widget.elements['url'].text,
+                          id_key: widget.elements['identifier'].text,
+                          width: widget.elements['width'].text,
+                          height: widget.elements['height'].text
+                        }).tap do |w|
+                          set_participant w, guid, user
+                        end
+                      rescue REXML::ParseException => ex
+                        puts "ParseException: #{ex.message}"
+                        nil
+                      end
     end
 
     def test
@@ -56,6 +63,21 @@ module WookieConnector
     rescue REXML::ParseException => ex
       puts "ParseException: #{ex.message}"
       false
+    end
+
+    private
+
+    def set_participant(widget, guid, user)
+      Net::HTTP.post_form URI.parse("#@host/participants"),
+        {'api_key' => @api_key,
+         'shareddatakey' => @shared_data_key,
+         'userid' => user.login_name,
+         'id_key' => widget.id_key,
+         'widgetid' => guid,
+         'participant_role' => nil,
+         'participant_display_name' => user.screen_name,
+         'participant_id' => user.login_name,
+         'participant_thumbnail_url' => nil}
     end
   end
 end
