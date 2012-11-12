@@ -17,9 +17,9 @@ module WookieConnector
 
     attr_reader :user, :server
 
-    def initialize(host, apiKey, sharedDataKey, userName)
+    def initialize(host, apiKey, sharedDataKey, user)
       @server = Server.new host, apiKey, sharedDataKey
-      @user   = User.new userName
+      @user   = User.new user
     end
 
     def find_or_create_widget(guid)

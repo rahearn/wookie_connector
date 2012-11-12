@@ -16,9 +16,14 @@ module WookieConnector
   class User
     attr_reader :login_name, :screen_name
 
-    def initialize(user_name, screen_name = nil)
-      @login_name  = user_name
-      @screen_name = screen_name.nil? ? user_name : screen_name
+    def initialize(user, screen_name = nil)
+      if user.is_a? User
+        @login_name  = user.login_name
+        @screen_name = user.screen_name
+      else
+        @login_name  = user
+        @screen_name = screen_name.nil? ? user : screen_name
+      end
     end
   end
 end
