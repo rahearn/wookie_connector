@@ -30,7 +30,13 @@ module WookieConnector
     def widgets
       xml_data = Net::HTTP.get_response(URI.parse "#@host/widgets?all=true").body
       REXML::Document.new(xml_data).elements.collect('widgets/widget') do |widget|
-        Widget.new widget.elements['name'].text, guid: widget.attributes['id']
+        extras = {
+          guid:        widget.attributes['id'],
+          description: widget.elements['description'].text,
+        }
+        icon = widget.elements['icon'] and extras[:icon] = icon.attributes['src']
+
+        Widget.new widget.elements['name'].text, extras
       end
     end
 
